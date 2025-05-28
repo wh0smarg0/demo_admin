@@ -916,15 +916,24 @@
     }
 
     async function updateOrder(id, field, value) {
-      const body = {};
-      body[field] = (field === 'total' || field === 'tableNumber') ? parseFloat(value) :
-        field === 'dishes' ? value.split(',').map(s => parseInt(s.trim())) :
-          value;
+      // Отримати поточний стан замовлення
+      const response = await fetch(`${api}/order_table/${id}`);
+      const order = await response.json();
 
+      // Оновити потрібне поле
+      if (field === 'total' || field === 'tableNumber') {
+        order[field] = parseFloat(value);
+      } else if (field === 'dishes') {
+        order[field] = value.split(',').map(s => parseInt(s.trim()));
+      } else {
+        order[field] = value;
+      }
+
+      // Відправити оновлене замовлення
       await fetch(`${api}/order_table/${id}`, {
         method: 'PUT',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(order)
       });
     }
 
