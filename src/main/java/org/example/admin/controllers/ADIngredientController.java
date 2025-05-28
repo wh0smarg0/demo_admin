@@ -2,6 +2,7 @@ package org.example.admin.controllers;
 
 
 import lombok.RequiredArgsConstructor;
+import org.example.admin.dto.IngredientDto;
 import org.example.admin.models.ADIngredient;
 import org.example.admin.models.ADMenuItemIngredient;
 import org.example.admin.repositories.ADIngredientRepository;
@@ -57,9 +58,9 @@ public class ADIngredientController {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<ADIngredient> updateIngredient(@PathVariable Long id, @RequestBody ADIngredient updatedIngredient) {
+  public ResponseEntity<ADIngredient> updateIngredient(@PathVariable Long id, @RequestBody IngredientDto dto) {
     try {
-      ADIngredient updated = ingredientService.updateIngredient(id, updatedIngredient);
+      ADIngredient updated = ingredientService.updateIngredient(id, dto);
       return ResponseEntity.ok(updated);
     } catch (RuntimeException e) {
       return ResponseEntity.notFound().build();

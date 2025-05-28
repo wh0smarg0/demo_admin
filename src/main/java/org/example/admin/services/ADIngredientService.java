@@ -1,6 +1,7 @@
 package org.example.admin.services;
 
 
+import org.example.admin.dto.IngredientDto;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.admin.models.ADIngredient;
@@ -30,15 +31,15 @@ public class ADIngredientService {
         return ingredientRepository.save(ingredient);
     }
 
-    public ADIngredient updateIngredient(Long id, ADIngredient updatedIngredient) {
-        return ingredientRepository.findById(id).map(ingredient -> {
-            ingredient.setName(updatedIngredient.getName());
-            // додавай інші поля, якщо є
-            return ingredientRepository.save(ingredient);
-        }).orElseThrow(() -> new RuntimeException("Ingredient not found with id " + id));
+    public ADIngredient updateIngredient(Long id, IngredientDto dto) {
+      return ingredientRepository.findById(id).map(ingredient -> {
+        ingredient.setName(dto.getName());
+        return ingredientRepository.save(ingredient);
+      }).orElseThrow(() -> new RuntimeException("Ingredient not found with id " + id));
     }
 
-    @Transactional
+
+  @Transactional
     public void deleteIngredientFromMenuItem(Long menuItemId, Long ingredientId) {
       boolean exists = menuItemIngredientRepository.existsByMenuItem_IdAndIngredient_Id(menuItemId, ingredientId);
       System.out.println("menuItemId = " + menuItemId + ", ingredientId = " + ingredientId);
