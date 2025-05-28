@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns="http://www.w3.org/1999/html">
+<head>
+  <meta charset="UTF-8">
+  <title>Меню ресторану</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 20px;
+      background-color: #f4f4f4;
+      height: 90vh;
+    }
+
+    .container {
+      display: flex;
+      height: 100%;
+      gap: 20px;
+    }
+
+    .left-panel {
+      width: 50%;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+    }
+
+    .right-panel {
+      width: 50%;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .right-panel section {
+      flex: 1;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+    }
+
+    .top-sections {
+      display: flex;
+      gap: 20px;
+      flex: 2;
+      height: 50%; /* обмеження висоти для скролу */
+    }
+
+    .top-sections section {
+      flex: 1;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Уніфікація скролбарів для всіх секцій */
+    .left-panel,
+    .top-sections section,
+    .right-panel section {
+      scrollbar-width: thin;
+      scrollbar-color: #ccc transparent;
+    }
+
+    .left-panel::-webkit-scrollbar,
+    .top-sections section::-webkit-scrollbar,
+    .right-panel section::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .left-panel::-webkit-scrollbar-thumb,
+    .top-sections section::-webkit-scrollbar-thumb,
+    .right-panel section::-webkit-scrollbar-thumb {
+      background-color: #ccc;
+      border-radius: 4px;
+    }
+
+    .left-panel::-webkit-scrollbar-track,
+    .top-sections section::-webkit-scrollbar-track,
+    .right-panel section::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+
+    h2 {
+      margin-top: 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    tr:hover {
+      background-color: #f9f9f9;
+    }
+
+    img {
+      width: 60px;
+      height: auto;
+      border-radius: 4px;
+    }
+
+    input, button {
+      padding: 8px;
+      margin: 4px 0;
+      width: 100%;
+    }
+
+    .btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 5px;
+    }
+
+    .add-btn {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .edit-btn {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .delete-btn {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .info-btn {
+      background-color: #35dc7d;
+      color: #26282e;
+    }
+
+    select#dishCategory {
+      padding: 8px;
+      margin: 4px 0;
+      width: 100%;
+      border: 1px solid #555454;
+      background-color: white;
+      font-size: 14px;
+      appearance: none; /* прибрати дефолтний стиль у деяких браузерах */
+      cursor: pointer;
+      transition: border-color 0.2s ease;
+    }
+
+    #modalBackdrop {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.6); /* трохи темніше */
+      backdrop-filter: blur(3px); /* ефект розмиття заднього фону */
+      z-index: 9998;
+    }
+
+    #orderModal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #ffffff;
+      padding: 30px 40px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      z-index: 9999;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      border-radius: 16px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    #closeModalBtn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 36px;
+      height: 36px;
+      background: transparent;
+      border: none;
+      font-size: 28px;
+      font-weight: bold;
+      color: #666;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0;
+      user-select: none;
+      transition: color 0.2s ease;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #closeModalBtn:hover {
+      color: red;
+    }
+
+    /* Додаткові стилі для контенту */
+    #orderModal h2 {
+      margin-top: 0;
+      font-size: 24px;
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+
+    #orderDetails p {
+      margin: 10px 0;
+    }
+
+    #orderDetails strong {
+      color: #34495e;
+    }
+
+    #orderDetails ul {
+      padding-left: 20px;
+      margin-top: 5px;
+    }
+
+    #orderDetails li {
+      margin-bottom: 5px;
+    }
+
+    /* Анімація */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+      }
+      to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+      }
+    }
+
+    .modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 9998;
+    }
+
+    .modal-content input {
+      display: block;
+      width: 100%;
+      padding: 8px;
+      margin: 10px 0;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    textarea, select, input[type="text"], input[type="email"], input[type="number"] {
+      display: block;
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      font-family: inherit;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+
+  </style>
+</head>
+
+<body>
+<div class="container">
+
+  <!-- Страви -->
+  <section class="left-panel">
+    <h2>Страви</h2>
+
+    <div>
+      <input id="dishName" type="text" placeholder="Назва страви">
+      <input id="dishDescription" type="text" placeholder="Опис">
+      <input id="dishImageUrl" type="text" placeholder="URL зображення">
+      <input id="dishPrice" type="number" placeholder="Ціна" step="0.01">
+
+      <!-- Випадаючий список категорій -->
+      <select id="dishCategory" name="category_id" required>
+        <option value="" disabled selected>Оберіть категорію</option>
+        <!-- опції будуть додаватись динамічно через JS -->
+      </select>
+
+
+      <input id="dishTime" type="number" placeholder="Час приготування">
+      <button class="btn add-btn" onclick="addDish()">Додати страву</button>
+    </div>
+
+    <table>
+      <thead>
+      <tr>
+        <th>Фото</th>
+        <th>Назва</th>
+        <th>Ціна</th>
+        <th>Опис</th>
+        <th>Час приготування</th>
+        <th>Дії</th>
+      </tr>
+      </thead>
+      <tbody id="dishTableBody"></tbody>
+    </table>
+  </section>
+
+  <div class="right-panel">
+
+    <!-- Горизонтальний блок з двох секцій -->
+    <div class="top-sections">
+      <!-- Інгредієнти -->
+      <section>
+        <h2>Інгредієнти</h2>
+        <div id="selectedDishInfo">Оберіть страву</div>
+        <input id="newIngredientName" type="text" placeholder="Назва інгредієнта">
+        <button class="btn add-btn" onclick="addIngredient()">Додати інгредієнт</button>
+        <button class="btn add-btn" onclick="fetchAllIngredients()">Усі інгредієнти</button>
+        <table>
+          <thead>
+          <tr>
+            <th>ID</th>
+            <th>Назва</th>
+            <th>Дії</th>
+          </tr>
+          </thead>
+          <tbody id="ingredientTableBody"></tbody>
+        </table>
+      </section>
+
+      <!-- Замовлення -->
+      <section>
+        <h2>Замовлення</h2>
+        <button class="btn add-btn" onclick="openAddOrderModal()">Додати замовлення</button>
+
+        <div id="addOrderModal" class="modal" style="display:none;">
+          <div class="modal-content" style="position: relative;">
+            <button id="closeAddOrderModal" class="modal-close">&times;</button>
+            <h3>Нове замовлення</h3>
+
+            <input id="customerName" type="text" placeholder="Ім'я замовника">
+            <input id="customerPhone" type="text" placeholder="Телефон">
+            <input id="customerEmail" type="email" placeholder="Email">
+
+            <label for="deliveryMethod">Спосіб отримання:</label>
+            <select id="deliveryMethod" onchange="toggleDeliveryFields()">
+              <option value="delivery">Доставка</option>
+              <option value="pickup">Самовивіз</option>
+              <option value="inplace">В закладі</option>
+            </select>
+
+            <input id="customerAddress" type="text" placeholder="Адреса доставки">
+
+            <input id="tableNumber" type="number" placeholder="Номер столика" style="display:none;">
+
+            <textarea id="orderDishes" placeholder="Список страв (у форматі ID :
+            кількість)" rows="3" style="width:100%; margin-top: 10px;"></textarea>
+
+            <input id="orderTotal" type="number" placeholder="Загальна сума" step="0.01">
+
+            <button class="btn save-btn" onclick="submitOrder()">Зберегти</button>
+          </div>
+        </div>
+
+        <div id="addOrderBackdrop" class="modal-backdrop" style="display:none;"></div>
+
+        <table>
+          <thead>
+          <tr>
+            <th>ID</th>
+            <th>Страви</th>
+            <th>Сума</th>
+            <th>Стіл</th>
+            <th>Дії</th>
+          </tr>
+          </thead>
+          <tbody id="orderTableBody"></tbody>
+        </table>
+      </section>
+    </div>
+
+    <div id="modalBackdrop"></div>
+    <div id="orderModal" class="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modalTitle" style="display: none;">
+      <div class="modal-content" role="document">
+        <button id="closeModalBtn" aria-label="Закрити">&times;</button>
+        <h2 id="modalTitle">Інформація про замовлення</h2>
+        <div id="orderDetails">
+          <!-- Сюди підставляються дані -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- Пошук -->
+    <section>
+      <h2>Пошук</h2>
+      <input id="searchIngredient" type="text" placeholder="Пошук інгредієнтів" oninput="searchIngredients()">
+      <input id="searchOrders" type="text" placeholder="Пошук замовлень" oninput="searchOrders()">
+      <ul id="searchResults"></ul>
+    </section>
+  </div>
+</div>
+
+  <script>
+    let selectedDishId = null;
+    let selectedDishName = "";
+
+    const api = 'http://localhost:8082';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const select = document.getElementById('dishCategory');
+
+      async function loadCategories() {
+        try {
+          const response = await fetch('http://localhost:8082/categories');
+          if (!response.ok) throw new Error('Помилка при завантаженні категорій');
+          const categories = await response.json();
+
+          select.innerHTML = '<option value="">Оберіть категорію</option>';
+
+          categories.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat.id;
+            option.textContent = cat.name;
+            select.appendChild(option);
+          });
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      loadCategories();
+    });
+
+
+    async function fetchDishes() {
+      const res = await fetch(`${api}/menu-items`);
+      const dishes = await res.json();
+      const tbody = document.getElementById('dishTableBody');
+      tbody.innerHTML = '';
+
+      dishes.forEach(dish => {
+        let imageSrc;
+
+        if (dish.imageUrl) {
+          imageSrc = dish.imageUrl.startsWith('http') || dish.imageUrl.startsWith('/images/')
+            ? 'http://localhost:8082' + dish.imageUrl
+            : 'http://localhost:8082/images/' + dish.imageUrl;
+        } else {
+          imageSrc = 'http://localhost:8082/images/default-image.jpg';
+        }
+
+        const row = document.createElement('tr');
+        row.onclick = () => selectDish(dish);
+        row.innerHTML = `
+    <td><img src="${imageSrc}" alt="${dish.name}" style="width:100px; height:100px; border:1px solid red;"></td>
+    <td contenteditable onblur="updateDish(${dish.id}, 'name', this.innerText)">${dish.name}</td>
+    <td contenteditable onblur="updateDish(${dish.id}, 'price', this.innerText)">${dish.price}</td>
+    <td contenteditable onblur="updateDish(${dish.id}, 'description', this.innerText)">${dish.description}</td>
+    <td contenteditable onblur="updateDish(${dish.id}, 'preparation_time', this.innerText)">${dish.preparationTime}</td>
+    <td>
+      <button class="btn delete-btn" onclick="event.stopPropagation(); deleteDish(${dish.id})">Видалити</button>
+    </td>
+  `;
+        tbody.appendChild(row);
+      });
+    }
+
+    async function addDish() {
+      const name = document.getElementById('dishName').value;
+      const description = document.getElementById('dishDescription').value;
+      const image_url = document.getElementById('dishImageUrl').value;
+      const price = parseFloat(document.getElementById('dishPrice').value);
+      const category_id = parseInt(document.getElementById('dishCategory').value);
+      const preparation_time = parseInt(document.getElementById('dishTime').value);
+
+      if (!name || isNaN(price)) {
+        alert("Заповніть назву і ціну");
+        return;
+      }
+
+      if (isNaN(preparation_time)) {
+        alert("Час приготування має бути числом");
+        return;
+      }
+
+      const dishData = { name, description, image_url, price, category_id, preparation_time };
+      console.log("Sending dish data:", dishData);
+
+      await fetch(`${api}/menu-items`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(dishData)
+      });
+
+      document.getElementById('dishName').value = '';
+      document.getElementById('dishDescription').value = '';
+      document.getElementById('dishImageUrl').value = '';
+      document.getElementById('dishPrice').value = '';
+      document.getElementById('dishCategory').value = '';
+      document.getElementById('dishTime').value = '';
+
+      fetchDishes();
+    }
+
+    async function updateDish(id, field, value) {
+      const body = {};
+      if (field === 'price' || field === 'preparationTime') {
+        body[field] = parseInt(value, 10);
+      } else {
+        body[field] = value;
+      }
+      await fetch(`${api}/menu-items/${id}`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+      });
+    }
+
+
+    async function deleteDish(id) {
+      if (!confirm('Видалити страву?')) return;
+      await fetch(`${api}/menu-items/${id}`, { method: 'DELETE' });
+      if (selectedDishId === id) {
+        selectedDishId = null;
+        document.getElementById('selectedDishInfo').innerText = 'Оберіть страву...';
+        document.getElementById('ingredientTableBody').innerHTML = '';
+      }
+      fetchDishes();
+    }
+
+    function selectDish(dish) {
+      selectedDishId = dish.id;
+      selectedDishName = dish.name;
+      document.getElementById('selectedDishInfo').innerText = `Інгредієнти страви: ${dish.name}`;
+      fetchIngredients(selectedDishId);
+    }
+
+    async function fetchIngredients(menuItemId = null) {
+      const tbody = document.getElementById('ingredientTableBody');
+      tbody.innerHTML = '';
+
+      if (menuItemId) {
+        // Якщо обрана страва — показуємо інгредієнти цієї страви
+        const res = await fetch(`${api}/menu-items/${menuItemId}/ingredient`);
+        const ingredients = await res.json();
+
+        ingredients.forEach(ing => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+        <td>${ing.id}</td>
+        <td contenteditable onblur="updateIngredient(${ing.id}, this.innerText)">${ing.name}</td>
+        <td>
+          <button class="btn delete-btn" onclick="deleteIngredientFromMenuItem(${ing.id}, ${menuItemId})">Видалити зі страви</button>
+        </td>
+      `;
+          tbody.appendChild(row);
+        });
+      } else {
+        // Якщо страва не обрана — показуємо всі інгредієнти
+        document.getElementById('selectedDishInfo').innerText = 'Оберіть страву...';
+        const res = await fetch(`${api}/ingredient/ingredients`);
+        const ingredients = await res.json();
+
+        ingredients.forEach(ing => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+        <td>${ing.id}</td>
+        <td contenteditable onblur="updateIngredient(${ing.id}, this.innerText)">${ing.name}</td>
+        <td>
+          <button class="btn delete-btn" onclick="deleteIngredientFromMenuItem(${ing.id})">Видалити</button>
+        </td>
+      `;
+          tbody.appendChild(row);
+        });
+      }
+    }
+
+    async function fetchAllIngredients() {
+      document.getElementById('selectedDishInfo').innerText = 'Оберіть страву... ';
+      const res = await fetch(`${api}/ingredient/ingredients`);
+      const data = await res.json();
+      console.log(data);
+
+      if (!Array.isArray(data)) {
+        console.error("Повернуло не масив:", data);
+        return;
+      }
+
+      const tbody = document.getElementById('ingredientTableBody');
+      tbody.innerHTML = '';
+
+      data.forEach(ing => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+      <td>${ing.id}</td>
+      <td contenteditable onblur="updateIngredient(${ing.id}, this.innerText)">${ing.name}</td>
+      <td>
+        <button class="btn delete-btn" onclick="deleteIngredientFromMenuItem(${ing.id})">Видалити</button>
+      </td>
+    `;
+        tbody.appendChild(row);
+      });
+    }
+
+    async function addIngredient() {
+      if (!selectedDishId) {
+        alert('Оберіть страву');
+        return;
+      }
+      const name = document.getElementById('newIngredientName').value;
+      if (!name) {
+        alert("Введіть назву інгредієнта");
+        return;
+      }
+
+      await fetch(`${api}/menu-items/${selectedDishId}/ingredient`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ name })
+      });
+
+      document.getElementById('newIngredientName').value = '';
+      fetchIngredients(selectedDishId);
+    }
+
+    async function updateIngredient(id, name) {
+      await fetch(`${api}/ingredient/${id}`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ name })
+      });
+      fetchIngredients();
+    }
+
+    async function deleteIngredientFromMenuItem(ingredientId, menuItemId = null) {
+      const dishSelected = menuItemId !== null;
+
+      const confirmMessage = dishSelected
+        ? 'Видалити інгредієнт зі страви?'
+        : 'Видалити інгредієнт з усієї бази?';
+
+      if (!confirm(confirmMessage)) return;
+
+      try {
+        let response;
+
+        if (dishSelected) {
+          response = await fetch(`${api}/menu-items/${menuItemId}/ingredient/${ingredientId}`, {
+            method: 'DELETE'
+          });
+        } else {
+          response = await fetch(`${api}/menu-items/ingredient/${ingredientId}`, {
+            method: 'DELETE'
+          });
+        }
+
+        if (!response.ok) {
+          const error = await response.text();
+          alert('Помилка: ' + error);
+          return;
+        }
+
+        await fetchIngredients(menuItemId);
+
+      } catch (e) {
+        alert('Помилка мережі або сервера: ' + e.message);
+      }
+    }
+
+    fetchDishes();
+
+    function openAddOrderModal() {
+      document.getElementById("addOrderModal").style.display = "block";
+      document.getElementById("addOrderBackdrop").style.display = "block";
+      toggleDeliveryFields(); // щоб одразу сховати/показати поля
+    }
+
+    function closeAddOrderModal() {
+      document.getElementById("addOrderModal").style.display = "none";
+      document.getElementById("addOrderBackdrop").style.display = "none";
+    }
+
+    document.getElementById("closeAddOrderModal").addEventListener("click", closeAddOrderModal);
+    document.getElementById("addOrderBackdrop").addEventListener("click", closeAddOrderModal);
+
+    function toggleDeliveryFields() {
+      const method = document.getElementById('deliveryMethod').value;
+      const addressField = document.getElementById('customerAddress');
+      const tableField = document.getElementById('tableNumber');
+
+      if (method === 'delivery') {
+        addressField.style.display = 'block';
+        tableField.style.display = 'none';
+      } else if (method === 'inplace') {
+        addressField.style.display = 'none';
+        tableField.style.display = 'block';
+      } else { // pickup
+        addressField.style.display = 'none';
+        tableField.style.display = 'none';
+      }
+    }
+
+    function parseDishesInput(input) {
+      return input.split(',')
+        .map(item => {
+          const [idStr, quantityStr] = item.split(':').map(s => s.trim());
+          return {
+            id: parseInt(idStr),
+            quantity: parseInt(quantityStr) || 1
+          };
+        })
+        .filter(d => !isNaN(d.id) && d.quantity > 0);
+    }
+
+    async function submitOrder() {
+      const customerName = document.getElementById('customerName').value.trim();
+      const customerEmail = document.getElementById('customerEmail').value.trim();
+      const customerPhone = document.getElementById('customerPhone').value.trim();
+      const customerAddress = document.getElementById('customerAddress').value.trim();
+      const orderType = document.getElementById('deliveryMethod').value;
+      const tableNumberInput = document.getElementById('tableNumber').value.trim();
+      const orderDishesInput = document.getElementById('orderDishes').value.trim();
+      const orderTotalInput = document.getElementById('orderTotal').value.trim();
+
+      // Перевірки обов'язкових полів
+      if (!customerName) {
+        alert('Введіть ім’я замовника');
+        return;
+      }
+      if (!customerEmail) {
+        alert('Введіть email');
+        return;
+      }
+      if (!customerPhone) {
+        alert('Введіть телефон');
+        return;
+      }
+
+      if (orderType === 'inplace' && !tableNumberInput) {
+        alert('Введіть номер столика');
+        return;
+      }
+
+      if (orderType === 'delivery' && !customerAddress) {
+        alert('Введіть адресу доставки');
+        return;
+      }
+
+      // Парсимо страви
+      if (!orderDishesInput) {
+        alert('Введіть страви у форматі id:quantity');
+        return;
+      }
+      const dishes = parseDishesInput(orderDishesInput);
+      if (dishes.length === 0) {
+        alert('Введіть коректні дані страв (id:quantity)');
+        return;
+      }
+
+      const total = parseFloat(orderTotalInput);
+      if (isNaN(total) || total <= 0) {
+        alert('Введіть коректну загальну суму');
+        return;
+      }
+
+      // Формуємо дані для бекенду
+      const orderData = {
+        customerName: customerName,
+        email: customerEmail,
+        phone: customerPhone,
+        address: orderType === 'delivery' ? customerAddress : '',
+        deliveryType: orderType,
+        tableNumber: orderType === 'inplace' ? parseInt(tableNumberInput) : null,
+        dishes,
+        total
+      };
+
+      console.log("WATCH THIS:", orderData);
+
+      try {
+        const res = await fetch(`${api}/order_table`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(orderData)
+        });
+
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`Помилка сервера: ${res.status} ${res.statusText} - ${text}`);
+        }
+
+        alert('Замовлення успішно додано!');
+        // Очистка форми
+        document.getElementById('orderForm').reset();
+
+        // Закрити модальне вікно (потрібно реалізувати цю функцію)
+        closeOrderModal();
+
+        // Оновити список замовлень
+        fetchOrders();
+      } catch (err) {
+        alert(`Помилка: ${err.message}`);
+      }
+    }
+
+    async function fetchOrders() {
+      const res = await fetch(`${api}/order_table`);
+
+      if (!res.ok) {
+        console.error('Ошибка HTTP:', res.status, res.statusText);
+        alert(`Помилка сервера: ${res.status} ${res.statusText}`);
+        return;
+      }
+
+      let orders;
+      try {
+        orders = await res.json();
+      } catch (e) {
+        console.error('Ошибка парсинга JSON:', e);
+        alert('Не удалось распарсить ответ сервера');
+        return;
+      }
+
+      console.log('Получено заказов:', orders);
+
+      if (!Array.isArray(orders)) {
+        console.error('Ответ сервера не массив:', orders);
+        alert('Невірний формат даних з сервера');
+        return;
+      }
+
+      const tbody = document.getElementById('orderTableBody');
+      tbody.innerHTML = '';
+
+      orders.forEach(order => {
+        const row = document.createElement('tr');
+
+        const dishesText = order.dishes.map(d => d.name).join(",\n");
+
+        row.innerHTML = `
+    <td>${order.id}</td>
+    <td contenteditable
+        style="white-space: pre-wrap; outline: none; border: none; padding: 4px; text-align: left;"
+        onblur="updateOrder(${order.id}, 'dishes', this.innerText)">
+      ${dishesText}
+    </td>
+    <td contenteditable
+        style="white-space: pre-wrap; outline: none; border: none; padding: 4px;"
+        onblur="updateOrder(${order.id}, 'total', this.innerText)">
+      ${order.total}
+    </td>
+    <td contenteditable
+        style="white-space: pre-wrap; outline: none; border: none; padding: 4px;"
+        onblur="updateOrder(${order.id}, 'tableNumber', this.innerText)">
+      ${order.tableNumber ?? ''}
+    </td>
+    <td>
+      <button class="btn delete-btn"
+              onclick="deleteOrder(${order.id})"
+              type="button">
+        Видалити
+      </button>
+      <button class="btn info-btn"
+              onclick="openOrderModal(${order.id})"
+              type="button">
+        Переглянути
+      </button>
+    </td>
+  `;
+
+        tbody.appendChild(row);
+      });
+    }
+
+    async function updateOrder(id, field, value) {
+      const body = {};
+      body[field] = (field === 'total' || field === 'tableNumber') ? parseFloat(value) :
+        field === 'dishes' ? value.split(',').map(s => parseInt(s.trim())) :
+          value;
+
+      await fetch(`${api}/order_table/${id}`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+      });
+    }
+
+    function openOrderModal(id) {
+      fetch(`${api}/order_table/${id}`)
+        .then(res => res.json())
+        .then(order => {
+          const modal = document.getElementById("orderModal");
+          const backdrop = document.getElementById("modalBackdrop");
+          const container = document.getElementById("orderDetails");
+
+          container.innerHTML = `
+  <p><strong>Замовник:</strong> ${order.customerName || "-"}</p>
+  <p><strong>Телефон:</strong> ${order.customerPhone || "-"}</p>
+  <p><strong>Email:</strong> ${order.customerEmail || "-"}</p>
+  <p><strong>Адреса:</strong> ${order.customerAddress || "-"}</p>
+  <hr>
+  <p><strong>Статус:</strong> ${order.status}</p>
+  <p><strong>Стіл/Доставка:</strong> ${order.tableInfo || "-"}</p>
+  <p><strong>Страви:</strong></p>
+  <ul>
+    ${order.dishes.map(dish => `<li>${dish.name} ×${dish.quantity}</li>`).join("")}
+  </ul>
+  <p><strong>Сума:</strong> ${order.total} грн</p>
+`;
+
+          backdrop.style.display = "block";
+          modal.style.display = "block";
+        })
+        .catch(err => {
+          alert("Помилка завантаження замовлення");
+        });
+    }
+
+    document.getElementById("closeModalBtn").addEventListener("click", closeOrderModal);
+
+    function closeOrderModal() {
+      document.getElementById("orderModal").style.display = "none";
+      document.getElementById("modalBackdrop").style.display = "none";
+    }
+
+    async function deleteOrder(id) {
+      if (!confirm('Видалити замовлення?')) return;
+      await fetch(`${api}/order_table/${id}`, { method: 'DELETE' });
+      fetchOrders();
+    }
+
+    async function searchIngredients() {
+      const query = document.getElementById('searchIngredient').value.toLowerCase();
+
+      try {
+        const res = await fetch(`${api}/ingredient/ingredients`);
+        if (!res.ok) {
+          alert(`Помилка сервера: ${res.status} ${res.statusText}`);
+          return;
+        }
+
+        const data = await res.json();
+        console.log('Response from /ingredient:', data);
+
+        // Предположим, что данные в data.ingredients (например), а не напрямую массив
+        const ingredients = Array.isArray(data) ? data : data.ingredients;
+
+        if (!Array.isArray(ingredients)) {
+          alert('Отримані дані не є масивом інгредієнтів');
+          return;
+        }
+
+        const results = ingredients.filter(ing => ing.name.toLowerCase().includes(query));
+        displaySearchResults(results.map(r => `Інгредієнт: ${r.name}`));
+      } catch (error) {
+        console.error('Помилка при отриманні інгредієнтів:', error);
+        alert('Помилка мережі або сервера');
+      }
+    }
+
+
+    async function searchOrders() {
+      const query = document.getElementById('searchOrders').value.toLowerCase();
+      const res = await fetch(`${api}/order_table`);
+      const orders = await res.json();
+
+      const results = orders.filter(order => {
+        // Приводим все имена блюд к одной строке в нижнем регистре
+        const dishesNames = order.dishes.map(dish => dish.name.toLowerCase()).join(',');
+
+        return dishesNames.includes(query) ||
+          (order.tableNumber + '').includes(query) ||
+          (order.id + '').includes(query);
+      });
+
+      displaySearchResults(results.map(r => `Замовлення ID: ${r.id}, стіл: ${r.tableNumber}, страви: ${r.dishes.map(d => d.name).join(', ')}`));
+    }
+
+    function displaySearchResults(results) {
+      const ul = document.getElementById('searchResults');
+      ul.innerHTML = '';
+      if (results.length === 0) {
+        const li = document.createElement('li');
+        li.innerText = 'Нічого не знайдено';
+        ul.appendChild(li);
+      } else {
+        results.forEach(r => {
+          const li = document.createElement('li');
+          li.innerText = r;
+          ul.appendChild(li);
+        });
+      }
+    }
+
+
+    fetchOrders();
+
+  </script>
+
+</body>
+</html>
