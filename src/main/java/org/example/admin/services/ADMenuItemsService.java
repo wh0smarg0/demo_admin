@@ -57,7 +57,7 @@ public class ADMenuItemsService {
     ADMenuItems menuItem = menuItemsRepository.findById(menuItemId)
       .orElseThrow(() -> new RuntimeException("Страва не знайдена"));
 
-    // Шукаємо інгредієнт по назві, якщо немає — створюємо новий
+    // Ищем ингредиент по имени или создаём новый
     ADIngredient ingredient = ingredientRepository.findByName(ingredientName)
       .orElseGet(() -> {
         ADIngredient newIngredient = new ADIngredient();
@@ -65,10 +65,17 @@ public class ADMenuItemsService {
         return ingredientRepository.save(newIngredient);
       });
 
-    // Додаємо інгредієнт до страви (двонаправлений зв'язок потрібно синхронізувати)
-    // Якщо є двонаправлений список в ADIngredient, додати теж (за потребою)
+    // Создаём связь между блюдом и ингредиентом
+    ADMenuItemIngredient menuItemIngredient = new ADMenuItemIngredient();
+    menuItemIngredient.setMenuItem(menuItem);
+    menuItemIngredient.setIngredient(ingredient);
 
-    menuItemsRepository.save(menuItem);
+    // Сохраняем связь в репозитории, например:
+    menuItemIngredientRepository.save(menuItemIngredient);
+
+    // Можно дополнительно обновить список в menuItem, если есть двунаправленная связь
+    // menuItem.getIngredients().add(menuItemIngredient);
+    // menuItemsRepository.save(menuItem);
   }
 
   @Transactional
