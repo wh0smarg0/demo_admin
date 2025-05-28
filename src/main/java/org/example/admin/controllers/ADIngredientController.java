@@ -52,19 +52,19 @@ public class ADIngredientController {
 
 
   @PostMapping
-    public ADIngredient createIngredient(@RequestBody ADIngredient ingredient) {
-        return ingredientService.createIngredient(ingredient);
-    }
+  public ADIngredient createIngredient(@RequestBody ADIngredient ingredient) {
+    return ingredientService.createIngredient(ingredient);
+  }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ADIngredient> updateIngredient(@PathVariable Long id, @RequestBody ADIngredient updatedIngredient) {
-        try {
-            ADIngredient updated = ingredientService.updateIngredient(id, updatedIngredient);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+  @PutMapping("/{id}")
+  public ResponseEntity<ADIngredient> updateIngredient(@PathVariable Long id, @RequestBody ADIngredient updatedIngredient) {
+    try {
+      ADIngredient updated = ingredientService.updateIngredient(id, updatedIngredient);
+      return ResponseEntity.ok(updated);
+    } catch (RuntimeException e) {
+      return ResponseEntity.notFound().build();
     }
+  }
 
   @DeleteMapping("/menu-item/{menuItemId}/ingredient/{ingredientId}")
   public ResponseEntity<?> deleteIngredientFromMenuItem(@PathVariable Long menuItemId,
