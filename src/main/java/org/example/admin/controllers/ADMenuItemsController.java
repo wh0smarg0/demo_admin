@@ -86,6 +86,16 @@ public class ADMenuItemsController {
       .orElseGet(() -> ResponseEntity.notFound().build());
   }
 
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> deleteMenuItem(@PathVariable Long id) {
+    boolean deleted = menuItemsService.deleteMenuItemById(id);
+    if (deleted) {
+      return ResponseEntity.noContent().build();
+    } else {
+      return ResponseEntity.notFound().build();
+    }
+  }
+
   // Удаление ингредиента из всех блюд и самой базы (глобально)
   @DeleteMapping("/ingredient/{id}")
   public ResponseEntity<Void> deleteIngredientGlobally(@PathVariable Long id) {

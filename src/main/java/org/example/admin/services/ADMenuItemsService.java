@@ -72,10 +72,15 @@ public class ADMenuItemsService {
 
     // Сохраняем связь в репозитории, например:
     menuItemIngredientRepository.save(menuItemIngredient);
+  }
 
-    // Можно дополнительно обновить список в menuItem, если есть двунаправленная связь
-    // menuItem.getIngredients().add(menuItemIngredient);
-    // menuItemsRepository.save(menuItem);
+  public boolean deleteMenuItemById(Long id) {
+    Optional<ADMenuItems> item = menuItemsRepository.findById(id);
+    if (item.isPresent()) {
+      menuItemsRepository.deleteById(id);
+      return true;
+    }
+    return false;
   }
 
   @Transactional

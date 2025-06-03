@@ -839,11 +839,11 @@
         // Закрити модальне вікно (потрібно реалізувати цю функцію)
         closeOrderModal();
 
-        // Оновити список замовлень
-        fetchOrders();
       } catch (err) {
         alert(`Помилка: ${err.message}`);
       }
+
+      fetchOrders();
     }
 
     async function fetchOrders() {
